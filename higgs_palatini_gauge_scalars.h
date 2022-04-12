@@ -5,7 +5,7 @@
    Copyright Daniel G. Figueroa, Adrien Florio, Francisco Torrenti and Wessel Valkenburg.
    Released under the MIT license, see LICENSE.md. */
 
-// File info: Main contributor(s): Frédéric Dux, Year: 2020
+// File info: Main contributor(s): Frédéric Dux, Year: 2021
 
 #include "CosmoInterface/cosmointerface.h"
 
@@ -79,7 +79,7 @@ private:
         // Independent parameters of the model (read from parameters file)
         /////////       
             
- 	xi     = parser.get<double>("xi");
+    	xi     = parser.get<double>("xi");
         Lambda = parser.get<double>("Lambda");
         g      = parser.get<double>("g"); 
         gz     = parser.get<double>("gz"); 
@@ -113,19 +113,19 @@ private:
     auto potentialTerms(Tag<1>) // W+ potential energy
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return 0.5 * xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * pow(g,2) * pow<2>(fldS(1_c));
+      return 0.5 * xi / Lambda * pow<2>(tanh(sharg)) * pow(g,2) * pow<2>(fldS(1_c));
     }
 
     auto potentialTerms(Tag<2>) // W- potential energy
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return 0.5 * xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * pow(g,2) * pow<2>(fldS(2_c));
+      return 0.5 * xi / Lambda * pow<2>(tanh(sharg)) * pow(g,2) * pow<2>(fldS(2_c));
     }
 
     auto potentialTerms(Tag<3>) // Z0 potential energy
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return 0.5 * xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * pow(gz,2) * pow<2>(fldS(3_c));
+      return 0.5 * xi / Lambda * pow<2>(tanh(sharg)) * pow(gz,2) * pow<2>(fldS(3_c));
     }
 
 
@@ -149,30 +149,29 @@ private:
     auto potDeriv(Tag<0>) // Derivative with respect to the inflaton
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      auto globalfact =  0.5 * sqrt(xi) / Lambda * tanh(sharg) / pow<4>(cosh(sharg));
-      auto inp11 = xi * (3 - cosh(2*fldS(0_c)));
-      auto inp12 =   g*g   * ( pow<2>(fldS(1_c)) + pow<2>(fldS(2_c)) ) 
-                   + gz*gz *   pow<2>(fldS(3_c));
-      auto inp2 = 8 * Lambda * pow<2>(sinh(sharg));
-      return globalfact * ( inp11 * inp12 + inp2);
+      auto globalfact =  sqrt(xi) / Lambda * tanh(sharg) / pow<2>(cosh(sharg));
+      auto inp1 = xi*(   g*g   * ( pow<2>(fldS(1_c)) + pow<2>(fldS(2_c)) ) 
+                        + gz*gz *   pow<2>(fldS(3_c))   );
+      auto inp2 = 4 * Lambda * pow<2>(tanh(sharg));
+      return globalfact * ( inp1  + inp2);
     }
     
     auto potDeriv(Tag<1>) // Derivative with respect to W+
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * g*g * fldS(1_c);
+      return xi / Lambda * pow<2>(tanh(sharg)) * g*g * fldS(1_c);
     }
     
     auto potDeriv(Tag<2>) // Derivative with respect to W-
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * g*g * fldS(2_c);
+      return xi / Lambda * pow<2>(tanh(sharg)) * g*g * fldS(2_c);
     }
 
     auto potDeriv(Tag<3>) // Derivative with respect to Z0
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * gz*gz * fldS(3_c);
+      return xi / Lambda * pow<2>(tanh(sharg)) * gz*gz * fldS(3_c);
     }
 
     /////////
@@ -186,11 +185,11 @@ private:
         auto sharg = sqrt(xi) * fldS(0_c);
         auto globalfactor = xi/ Lambda / pow<4>(cosh(sharg));
 
-        auto bosonsum =   g*g * (pow<2>(fldS(1_c)) + pow<2>(fldS(2_c))) 
-                        + gz*gz * pow<2>(fldS(3_c));
+        auto bosonsum = xi * ( g*g * (pow<2>(fldS(1_c)) + pow<2>(fldS(2_c))) 
+                             + gz*gz * pow<2>(fldS(3_c))  );
 
-        auto term1 = ( cosh(2*sharg) - 10 * pow<2>(tanh(sharg)) ) * xi * bosonsum; 
-        auto term2 = - 4 * Lambda * (cosh(2*sharg)-4) * pow<2>(tanh(sharg));
+        auto term1 = bosonsum * (2 - cosh(2*sharg));
+        auto term2 = 4 * Lambda * (4 - cosh(2*sharg)) * pow<2>(tanh(sharg));
 
         return globalfactor * (term1 + term2);
     }
@@ -198,19 +197,19 @@ private:
     auto potDeriv2(Tag<1>) // Derivative with respect to W+
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * g*g;
+      return xi / Lambda * pow<2>(tanh(sharg)) * g*g;
     }
     
     auto potDeriv2(Tag<2>) // Derivative with respect to W-
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * g*g;
+      return xi / Lambda * pow<2>(tanh(sharg)) * g*g;
     }
 
     auto potDeriv2(Tag<3>) // Derivative with respect to Z0
     {
       auto sharg = sqrt(xi) * fldS(0_c);
-      return xi / Lambda * pow<2>(tanh(sharg)) / pow<2>(cosh(sharg)) * gz*gz;
+      return xi / Lambda * pow<2>(tanh(sharg)) * gz*gz;
     }
 
     };
